@@ -1,14 +1,14 @@
 from setuptools import Command, setup
 
 setup(
-    name='balanced-notify',
+    name='balanced_notify',
     version='0.0.1',
     url='http://github.com/tarunc/balanced-notify/',
     license='MIT',
     author='Tarun',
     author_email='tarunc92@gmail.com',
     long_description=__doc__,
-    packages=['app'],
+    packages=['balanced_notify.app', 'balanced_notify.config', 'balanced_notify.tests'],
     include_package_data=True,
     zip_safe=False,
     platforms='any',
