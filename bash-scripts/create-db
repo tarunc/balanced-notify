@@ -1,8 +1,12 @@
 #!../notify/bin/python
 
 from migrate.versioning import api
-from balanced_notify.config import SQLALCHEMY_DATABASE_URI
-from balanced_notify.config import SQLALCHEMY_MIGRATE_REPO
+
+base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+sys.path.insert(0, base_path)
+
+from config import SQLALCHEMY_DATABASE_URI
+from config import SQLALCHEMY_MIGRATE_REPO
 from app import db
 import os.path
 

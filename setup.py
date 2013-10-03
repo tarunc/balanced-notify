@@ -17,6 +17,6 @@ setup(
         'simplejson>=3.3',
         'Flask_Restless>=0.12',
         'Flask_SQLAlchemy>=1.0',
-        'sqlalchemy-migrate>=0.7.2'
+        'sqlalchemy-migrate<=0.7.10'
     ]
 )
