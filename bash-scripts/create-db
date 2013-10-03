@@ -1,4 +1,7 @@
 #!../notify/bin/python
+import logging
+import os
+import sys
 
 from migrate.versioning import api
 
