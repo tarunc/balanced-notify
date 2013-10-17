@@ -1,6 +1,7 @@
 from flask import request
 from functools import update_wrapper
 
+
 def user():
     def decorator(f):
         def wrapped_function(*args, **kwargs):
@@ -14,6 +15,7 @@ def user():
         return update_wrapper(wrapped_function, f)
 
     return decorator
+
 
 def admin():
     def decorator(f):
