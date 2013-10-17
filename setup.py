@@ -8,15 +8,13 @@ setup(
     author='Tarun',
     author_email='tarunc92@gmail.com',
     long_description=__doc__,
-    packages=['balanced_notify.app', 'balanced_notify.config', 'balanced_notify.tests'],
+    packages=['app'],
     include_package_data=True,
     zip_safe=False,
     platforms='any',
     install_requires=[
         'Flask>=0.10',
         'simplejson>=3.3',
-        'Flask_Restless>=0.12',
-        'Flask_SQLAlchemy>=1.0',
-        'sqlalchemy-migrate<=0.7.10'
+        'pymongo>=2.6.3'
     ]
 )

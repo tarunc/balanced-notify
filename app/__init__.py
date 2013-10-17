@@ -1,9 +1,11 @@
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
+from pymongo import MongoClient
 
 app = Flask(__name__)
 app.config.from_object('config')
-db = SQLAlchemy(app)
+mongoClient = MongoClient(app.config.get('MONGO_DATABASE_URI'))
+db = mongoClient['notify']
+
 
 if not app.debug:
     import logging
@@ -20,7 +22,7 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('notification startup')
 
-from app import routes, models
+from app import routes
 
 if __name__ == '__main__':
     app.run()

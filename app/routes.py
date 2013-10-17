@@ -1,64 +1,88 @@
-from app import app, db, models
+from app import app, db
 from app.crossdomain import crossdomain
-from app.models import Notification
 from flask import request
-from flask.ext.restless import APIManager
-from sqlalchemy import and_
+from datetime import datetime
+from bson import json_util
+from bson.objectid import ObjectId
 import simplejson as json
 
-# Create the Flask-Restless API manager.
-manager = APIManager(app, flask_sqlalchemy_db=db)
+Notification = db['notifications']
+User = db['users']
 
-# Create API endpoints, which will be available at /api/<tablename> by
-# default. Allowed HTTP methods can be specified as well.
-manager.create_api(Notification)
+def createNotification(user_id, message):
+    return {
+        'message': message,
+        'created_at': datetime.utcnow(),
+        'uid': str(user_id)
+    }
+
+def deleteNotification(user_id, notification_id):
+    Notification.update({ '_id': notification_id, 'uid': user_id }, { '$set': { 'read': True } }, upsert=False, multi=False)
+
+def getUsers():
+    return User.find(fields=['email', '_id'])
 
 @app.route('/notifications', methods=['GET'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
 def getNotifications():
-    if not request.args['email']:
-        return '', 404
+    user = request.headers.get('x-balanced-user')
+    email = request.headers.get('x-balanced-email')
+    admin = request.headers.get('x-balanced-admin')
 
-    email = request.args.get('email')
+    print email, user, admin
 
-    notifications = db.session.query(
-        Notification.id,
-        Notification.message).filter(
-        and_(
-            Notification.email == email,
-            Notification.read == False)).all(
-    )
+    if not user:
+        return '', 401
 
-    return json.dumps({'data': notifications})
+    notification_cursor = Notification.find({ 'uid': user, '$or': [{ 'read': False }, { 'read': { '$exists': False } }] }, fields=['message', '_id'])
+    return json.dumps({ 'data': [{ 'message': doc['message'], 'id': str(doc['_id']) } for doc in notification_cursor] }, default=json_util.default)
 
 
 @app.route('/notification', methods=['POST'])
+@crossdomain(origin=app.config.get('CORS_DOMAIN'))
 def createNotifications():
-    if not request.form['message'] or not request.form['email']:
-        return 'Message and email required', 400
+    admin = request.headers.get('x-balanced-admin')
+
+    if not admin:
+        return 'Authorization Required', 401
+
+    if not request.form['message']:
+        return 'Message required', 400
 
     message = str(request.form['message'])
-    email = str(request.form['email'])
-    # persistent = request.form.get('persistent', default=None)
+    user_id = request.form.get('uid')
 
-    notification = Notification(
-        message=message,
-        email=email)
-    db.session.add(notification)
-    db.session.commit()
+    if user_id:
+        notification = createNotification(user_id, message)
+    else:
+        users = getUsers()
+        notification = [createNotification(user['_id'], message) for user in users]
 
-    return json.dumps({'data': notification})
+    notification_id = Notification.insert(notification)
+
+    return json.dumps({ 'data': str(notification_id) if isinstance(notification_id, ObjectId) else [str(obj_id) for obj_id in notification_id] }, default=json_util.default)
 
 
-@app.route('/notification/<int:notification_id>', methods=['DELETE'])
+@app.route('/users', methods=['GET'])
+@crossdomain(origin=app.config.get('CORS_DOMAIN'))
+def getAllUsers():
+    admin = request.headers.get('x-balanced-admin')
+
+    if not admin:
+        return 'Authorization Required', 401
+
+    return json.dumps({ 'data': [doc for doc in getUsers()] }, default=json_util.default)
+
+
+@app.route('/notification/<string:notification_id>', methods=['DELETE'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
 def markNotificationsAsRead(notification_id):
-    existing_notification = Notification.query.get(notification_id)
-    if not existing_notification:
-        return '', 404
+    user = request.headers.get('x-balanced-user')
 
-    existing_notification.read = True
-    db.session.merge(existing_notification)
-    db.session.commit()
+    if not user:
+        return '', 401
 
-    return 'ok';
+    deleteNotification(user, notification_id)
+
+    return 'ok'
+

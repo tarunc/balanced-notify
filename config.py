@@ -2,14 +2,12 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 CSRF_ENABLED = True
-SECRET_KEY = 'you-will-never-guess'
+SECRET_KEY = '~you-will-never-guess~'
 
 if os.environ.get('DATABASE_URL') is None:
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db') + '?check_same_thread=False'
+    MONGO_DATABASE_URI = 'mongodb://balanced:mysupersecretpassword123~`@paulo.mongohq.com:10045/notify'
 else:
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+    MONGO_DATABASE_URI = os.environ['DATABASE_URL']
 
 # slow database query threshold (in seconds)
 DATABASE_QUERY_TIMEOUT = 0.5
@@ -21,4 +19,3 @@ if os.environ.get('CORS_DOMAIN') is None:
     CORS_DOMAIN = '*'
 else:
     CORS_DOMAIN = os.environ.get('CORS_DOMAIN')
-
