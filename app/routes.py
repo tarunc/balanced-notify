@@ -1,4 +1,4 @@
-from app import app, db
+from app import app
 from app.crossdomain import crossdomain
 from app.models import Notification, User
 from flask import request
