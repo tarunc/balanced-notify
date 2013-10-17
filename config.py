@@ -9,6 +9,11 @@ if os.environ.get('DATABASE_URL') is None:
 else:
     MONGO_DATABASE_URI = os.environ['DATABASE_URL']
 
+if os.environ.get('DATABASE_NAME') is None:
+    DATABASE_NAME = 'notify'
+else:
+    DATABASE_NAME = os.environ['DATABASE_NAME']
+
 # slow database query threshold (in seconds)
 DATABASE_QUERY_TIMEOUT = 0.5
 

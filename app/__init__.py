@@ -4,7 +4,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 app.config.from_object('config')
 mongoClient = MongoClient(app.config.get('MONGO_DATABASE_URI'))
-db = mongoClient['notify']
+db = mongoClient[app.config.get('DATABASE_NAME')]
 
 
 if not app.debug:
