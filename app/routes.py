@@ -71,7 +71,7 @@ def getAllUsers():
     if not admin:
         return 'Authorization Required', 401
 
-    return json.dumps({ 'data': [doc for doc in getUsers()] }, default=json_util.default)
+    return json.dumps({ 'data': [{ 'id': str(doc['_id']), 'email': doc['email'] } for doc in getUsers()] }, default=json_util.default)
 
 
 @app.route('/notification/<string:notification_id>', methods=['DELETE'])
