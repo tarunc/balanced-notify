@@ -15,7 +15,8 @@ class Notification(object):
 
     @staticmethod
     def deleteNotification(user_id, notification_id):
-        NotificationModel.update({ '_id': notification_id, 'uid': user_id }, { '$set': { 'read': True } }, upsert=False, multi=False)
+        print NotificationModel.update({ '_id': notification_id, 'uid': user_id }, { '$set': { 'read': True } }, upsert=False, multi=False)
+        print [doc for doc in NotificationModel.find({ 'uid': user_id })]
 
     @staticmethod
     def getForUser(user):

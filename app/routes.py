@@ -1,6 +1,7 @@
 from app import app
 from app.crossdomain import crossdomain
 from app.models import Notification, User
+import auth
 from flask import request
 from bson import json_util
 from bson.objectid import ObjectId
@@ -8,26 +9,17 @@ import simplejson as json
 
 @app.route('/notifications', methods=['GET'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
+@auth.user()
 def getNotifications():
     user = request.headers.get('x-balanced-user')
-    email = request.headers.get('x-balanced-email')
-    admin = request.headers.get('x-balanced-admin')
-
-    if not user:
-        return '', 401
-
     notification_cursor = Notification.getForUser(user)
     return json.dumps({ 'data': [{ 'message': doc['message'], 'id': str(doc['_id']) } for doc in notification_cursor] }, default=json_util.default)
 
 
 @app.route('/notification', methods=['POST'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
+@auth.admin()
 def createNotifications():
-    admin = request.headers.get('x-balanced-admin')
-
-    if not admin:
-        return 'Authorization Required', 401
-
     if not request.form['message']:
         return 'Message required', 400
 
@@ -41,24 +33,16 @@ def createNotifications():
 
 @app.route('/notification/<string:notification_id>', methods=['DELETE'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
-def markNotificationsAsRead(notification_id):
+@auth.user()
+def markNotificationAsRead(notification_id):
     user = request.headers.get('x-balanced-user')
-
-    if not user:
-        return '', 401
-
     Notification.deleteNotification(user, notification_id)
-
     return 'ok'
 
 
 @app.route('/users', methods=['GET'])
 @crossdomain(origin=app.config.get('CORS_DOMAIN'))
+@auth.admin()
 def getAllUsers():
-    admin = request.headers.get('x-balanced-admin')
-
-    if not admin:
-        return 'Authorization Required', 401
-
     return json.dumps({ 'data': [{ 'id': str(doc['_id']), 'email': doc['email'] } for doc in User.getUsers()] }, default=json_util.default)
 

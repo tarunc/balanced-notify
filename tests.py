@@ -18,7 +18,7 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['CSRF_ENABLED'] = False
-        app.config['DATABASE_URL'] = 'mongodb://localhost/test'
+        app.config['MONGO_DATABASE_URI'] = 'mongodb://localhost:27017/'
         self.app = app.test_client()
         db['notifications'].remove()
         db['users'].remove()
@@ -50,12 +50,16 @@ class TestCase(unittest.TestCase):
 
     def test_delete_notifications(self):
         notification_id = self.test_create_notification()
+        print notification_id
         res = self.app.delete('/notification/' + notification_id, headers={ 'x-balanced-user': USER_ID })
+        print res.data
         assert 'ok' in res.data
+        self.test_get_no_notifications()
 
     def test_get_no_notifications(self):
         res = self.app.get(
             '/notifications', headers={ 'x-balanced-user': USER_ID })
+        print res.data
         assert '[]' in res.data
 
     def test_get_users(self):
