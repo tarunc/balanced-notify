@@ -1,4 +1,5 @@
 from app import app, db
+from bson.objectid import ObjectId
 from datetime import datetime
 
 NotificationModel = db['notifications']
@@ -17,8 +18,7 @@ class Notification(object):
 
     @staticmethod
     def deleteNotification(user_id, notification_id):
-        print NotificationModel.update({'_id': notification_id, 'uid': user_id}, {'$set': {'read': True}}, upsert=False, multi=False)
-        print [doc for doc in NotificationModel.find({'uid': user_id})]
+        return NotificationModel.update({'_id': ObjectId(notification_id), 'uid': user_id}, {'$set': {'read': True}}, upsert=False, multi=False)
 
     @staticmethod
     def getForUser(user):
