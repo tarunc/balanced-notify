@@ -5,7 +5,8 @@ CSRF_ENABLED = True
 SECRET_KEY = '~you-will-never-guess~'
 
 if os.environ.get('DATABASE_URL') is None:
-    MONGO_DATABASE_URI = 'mongodb://balanced:mysupersecretpassword123~`@paulo.mongohq.com:10045/notify'
+    MONGO_DATABASE_URI = 'mongodb://balanced:mysupersecretpassword123~`\
+        @paulo.mongohq.com:10045/notify'
 else:
     MONGO_DATABASE_URI = os.environ['DATABASE_URL']
 

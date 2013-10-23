@@ -41,7 +41,8 @@ def crossdomain(origin=None, methods=None, headers=None,
             if headers is not None:
                 h['Access-Control-Allow-Headers'] = headers
             else:
-                h['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+                h['Access-Control-Allow-Headers'] = 'Authorization, \
+                    Content-Type'
 
             return resp
 

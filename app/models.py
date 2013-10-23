@@ -9,7 +9,7 @@ UserModel = db['users']
 class Notification(object):
 
     @staticmethod
-    def createModel(user_id, message):
+    def create(user_id, message):
         return {
             'message': message,
             'created_at': datetime.utcnow(),
@@ -17,11 +17,24 @@ class Notification(object):
         }
 
     @staticmethod
-    def deleteNotification(user_id, notification_id):
-        return NotificationModel.update({'_id': ObjectId(notification_id), 'uid': user_id}, {'$set': {'read': True}}, upsert=False, multi=False)
+    def delete_notification(user_id, notification_id):
+        if not isinstance(notification_id, ObjectId):
+            try:
+                notification_id = ObjectId(notification_id)
+            except:
+                return dict(n=0)
+
+        return (
+            NotificationModel.update(
+                {'_id': notification_id,
+                 'uid': user_id},
+                {'$set': {'read': True}},
+                upsert=False,
+                multi=False)
+        )
 
     @staticmethod
-    def getForUser(user):
+    def get_for_user(user):
         return (
             NotificationModel.find(
                 {'uid': user,
@@ -32,12 +45,12 @@ class Notification(object):
         )
 
     @staticmethod
-    def createNotifications(message, user_id):
+    def create_notifications(message, user_id):
         if user_id:
-            notification = Notification.createModel(user_id, message)
+            notification = Notification.create(user_id, message)
         else:
-            users = User.getUsers()
-            notification = [Notification.createModel(
+            users = User.get_users()
+            notification = [Notification.create(
                 user['_id'], message) for user in users]
 
         return NotificationModel.insert(notification)
@@ -46,5 +59,5 @@ class Notification(object):
 class User(object):
 
     @staticmethod
-    def getUsers():
+    def get_users():
         return UserModel.find(fields=['email', '_id'])
