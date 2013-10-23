@@ -48,8 +48,9 @@ def create_notifications():
 def mark_notification_as_read(notification_id):
     user = request.headers.get('x-balanced-user')
     res = Notification.delete_notification(user, notification_id)
+
     if res['n'] >= 1:
-        return 'ok', 204
+        return '', 204
     else:
         return 'Forbidden', 403
 

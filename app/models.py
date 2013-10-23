@@ -27,7 +27,9 @@ class Notification(object):
         return (
             NotificationModel.update(
                 {'_id': notification_id,
-                 'uid': user_id},
+                 'uid': user_id,
+                 '$or': [{'read': False},
+                         {'read': {'$exists': False}}]},
                 {'$set': {'read': True}},
                 upsert=False,
                 multi=False)

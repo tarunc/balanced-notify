@@ -97,6 +97,18 @@ class TestCase(unittest.TestCase):
         self.assertStatus(res, 204)
         self.test_get_no_notifications()
 
+    def test_delete_notifications_twice(self):
+        notification_id = self.test_create_notification()
+        res1 = self.app.delete(
+            '/notification/' + notification_id,
+            headers={'x-balanced-user': USER_ID})
+
+        res2 = self.app.delete(
+            '/notification/' + notification_id,
+            headers={'x-balanced-user': USER_ID})
+
+        self.assertStatus(res2, 403)
+
     def test_delete_notifications_unauthorized(self):
         notification_id = self.test_create_notification()
         res = self.app.delete(
