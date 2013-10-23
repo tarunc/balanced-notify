@@ -15,6 +15,7 @@ setup(
     install_requires=[
         'Flask>=0.10',
         'simplejson>=3.3',
-        'pymongo>=2.6.3'
+        'pymongo>=2.6.3',
+        'jsonschema>=2.2.0'
     ]
 )
