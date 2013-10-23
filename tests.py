@@ -113,6 +113,19 @@ class TestCase(unittest.TestCase):
         """
         self.assertEqual(response.status_code, status_code)
 
+    def validateResponse(self, response, json_schema):
+        """
+        Helper method to parse a response as json and validate it given a json_schema
+
+        :param response: Flask response
+        :param json_schema: a json schema
+        """
+
+        data = json.loads(response.data)
+        validate(data, json_schema)
+
+        return data
+
     def test_create_notification(self):
         TEST_NOTIFICATION['uid'] = USER_ID
         res = self.app.post(
@@ -120,9 +133,7 @@ class TestCase(unittest.TestCase):
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
 
-        data = json.loads(res.data)
-
-        validate(data, CREATE_SCHEMA)
+        data = self.validateResponse(res, CREATE_SCHEMA)
         self.assertStatus(res, 201)
 
         return data['data']
@@ -132,6 +143,7 @@ class TestCase(unittest.TestCase):
         res = self.app.post(
             '/notification',
             data=TEST_NOTIFICATION)
+
         self.assertStatus(res, 401)
 
     def test_create_notification_not_admin_authorized(self):
@@ -140,6 +152,7 @@ class TestCase(unittest.TestCase):
             '/notification',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-user': USER_ID})
+
         self.assertStatus(res, 401)
 
     def test_create_multi_notification(self):
@@ -149,9 +162,7 @@ class TestCase(unittest.TestCase):
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
 
-        data = json.loads(res.data)
-
-        validate(data, CREATE_MULTI_SCHEMA)
+        data = self.validateResponse(res, CREATE_MULTI_SCHEMA)
         self.assertStatus(res, 201)
 
         return data['data']
@@ -162,9 +173,7 @@ class TestCase(unittest.TestCase):
             '/notifications',
             headers={'x-balanced-user': USER_ID})
 
-        data = json.loads(res.data)
-
-        validate(data, GET_NOTIFICATIONS_SCHEMA)
+        data = self.validateResponse(res, GET_NOTIFICATIONS_SCHEMA)
         self.assertEqual(notification_id, data['data'][0]['id'])
         self.assertEqual(
             TEST_NOTIFICATION.get('message'),
@@ -186,7 +195,6 @@ class TestCase(unittest.TestCase):
             headers={'x-balanced-user': USER_ID})
 
         self.assertStatus(res, 204)
-
         self.test_get_no_notifications()
 
     def test_delete_notifications_twice(self):
@@ -226,9 +234,7 @@ class TestCase(unittest.TestCase):
 
         self.assertIn('[]', res.data)
 
-        data = json.loads(res.data)
-        validate(data, GET_NO_NOTIFICATIONS_SCHEMA)
-
+        self.validateResponse(res, GET_NO_NOTIFICATIONS_SCHEMA)
         self.assertStatus(res, 200)
 
     def test_get_users(self):
@@ -236,7 +242,7 @@ class TestCase(unittest.TestCase):
             '/users', headers={'x-balanced-admin': '1'})
 
         data = json.loads(res.data)
-        validate(data, GET_USERS_SCHEMA)
+        self.validateResponse(res, GET_USERS_SCHEMA)
 
         self.assertGreaterEqual(len(data['data']), 1)
         self.assertStatus(res, 200)
