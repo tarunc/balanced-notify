@@ -1,12 +1,10 @@
-#!notify/bin/python
-import os
 import unittest
 
-from config import basedir
-from app import app, db
 import simplejson as json
-
 from jsonschema import validate
+
+from notify.app import create_app
+
 
 USER_ID = 1
 TEST_NOTIFICATION = dict(
@@ -115,7 +113,8 @@ class TestCase(unittest.TestCase):
 
     def validateResponse(self, response, json_schema):
         """
-        Helper method to parse a response as json and validate it given a json_schema
+        Helper method to parse a response as json and validate it given a
+        json_schema
 
         :param response: Flask response
         :param json_schema: a json schema
