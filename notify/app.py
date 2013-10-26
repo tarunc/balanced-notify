@@ -2,6 +2,7 @@ import importlib
 
 import pkgutil
 from flask import Flask, Blueprint
+from flask.ext.mongoengine import MongoEngine
 
 
 def register_blueprints(app, package_name, package_path):
@@ -23,8 +24,7 @@ def register_blueprints(app, package_name, package_path):
     return rv
 
 
-def create_app(package_name, package_path, settings_override=None,
-               register_security_blueprint=True):
+def create_app(package_name, package_path, settings_override=None):
     """Returns a :class:`Flask` application instance configured with common
     functionality for the Overholt platform.
 

@@ -1,9 +1,8 @@
-from app import app, db
-from bson.objectid import ObjectId
 from datetime import datetime
 
-NotificationModel = db['notifications']
-UserModel = db['users']
+from bson.objectid import ObjectId
+
+from notify import db
 
 
 class User(db.Document):
@@ -19,7 +18,7 @@ class Notification(db.Document):
     created_at = db.DateTimeField()
 
 
-class Notification(object):
+class _Notification(object):
 
     @staticmethod
     def create(user_id, message):
@@ -38,7 +37,7 @@ class Notification(object):
                 return dict(n=0)
 
         return (
-            NotificationModel.update(
+            Notification.update(
                 {'_id': notification_id,
                  'uid': user_id,
                  '$or': [{'read': False},
@@ -51,7 +50,7 @@ class Notification(object):
     @staticmethod
     def get_for_user(user):
         return (
-            NotificationModel.find(
+            Notification.find(
                 {'uid': user,
                  '$or': [{'read': False},
                          {'read': {'$exists': False}}]},
@@ -68,10 +67,10 @@ class Notification(object):
             notification = [Notification.create(
                 user['_id'], message) for user in users]
 
-        return NotificationModel.insert(notification)
+        return Notification.insert(notification)
 
 
-class User(object):
+class _User(object):
 
     @staticmethod
     def get_users():
