@@ -2,7 +2,6 @@ import importlib
 
 import pkgutil
 from flask import Flask, Blueprint
-from flask.ext.mongoengine import MongoEngine
 
 
 def register_blueprints(app, package_name, package_path):
@@ -12,6 +11,7 @@ def register_blueprints(app, package_name, package_path):
     :param app: the Flask application
     :param package_name: the package name
     :param package_path: the package path
+
     """
     rv = []
     for _, name, _ in pkgutil.iter_modules(package_path):
@@ -31,9 +31,7 @@ def create_app(package_name, package_path, settings_override=None):
     :param package_name: application package name
     :param package_path: application package path
     :param settings_override: a dictionary of settings to override
-    :param register_security_blueprint: flag to specify if the Flask-Security
-                                        Blueprint should be registered. Defaults
-                                        to `True`.
+
     """
     app = Flask(package_name, instance_relative_config=True)
 

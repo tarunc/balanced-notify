@@ -3,10 +3,10 @@ import os
 
 from flask.ext.mongoengine import MongoEngine
 
-import app
+import factory
 
 
-app = app.create_app(__name__, os.path.abspath(os.path.dirname(__file__)))
+app = factory.create_app(__name__, os.path.abspath(os.path.dirname(__file__)))
 db = MongoEngine(app)
 
 

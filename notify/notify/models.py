@@ -74,4 +74,4 @@ class _User(object):
 
     @staticmethod
     def get_users():
-        return UserModel.find(fields=['email', '_id'])
+        return User.find(fields=['email', '_id'])

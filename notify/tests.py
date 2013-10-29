@@ -3,6 +3,9 @@ import unittest
 import simplejson as json
 from jsonschema import validate
 
+from notify import app
+from notify.models import Notification, User
+
 
 USER_ID = 1
 TEST_NOTIFICATION = dict(
@@ -89,16 +92,17 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
-        db['notifications'].remove()
-        db['users'].remove()
-        db['users'].insert(
-            [{'email': 'app@balancedpayments.com',
-              '_id': USER_ID},
-             {'email': 'tests@balancedpayments.com'}])
+        Notification.objects.delete()
+        User.objects.delete()
+        for fixture in [
+            {'email': 'app@balancedpayments.com', '_id': USER_ID},
+            {'email': 'tests@balancedpayments.com'}
+        ]:
+            User(**fixture).save()
 
     def tearDown(self):
-        db['notifications'].remove()
-        db['users'].remove()
+        Notification.objects.delete()
+        User.objects.delete()
 
     def assertStatus(self, response, status_code):
         """
