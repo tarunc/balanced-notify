@@ -92,8 +92,6 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
-        Notification.objects.delete()
-        User.objects.delete()
         for fixture in [
             {'email': 'app@balancedpayments.com', '_id': USER_ID},
             {'email': 'tests@balancedpayments.com'}

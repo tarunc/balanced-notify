@@ -1,48 +1,72 @@
 from bson import json_util
 from bson.objectid import ObjectId
 from flask import request, Blueprint
+from flask.views import MethodView
 import simplejson as json
 
 from notify import app
-from notify import crossdomain
+from notify import utils
 from notify import auth
 from notify.models import Notification, User
 
 
-notif_bp = Blueprint('notifications', __name__, url_prefix='/notifications')
+class NotificationView(MethodView):
 
+    decorators = [
+        utils.crossdomain(origin=app.config.get('CORS_DOMAIN')),
+        auth.user()
+    ]
 
-class NotificationController(object):
+    def get(self, id_):
+        if id_ is None:
+            self._index()
+        else:
+            self._show(id_)
 
-    @notif_bp.route('/', methods=['GET'])
-    @crossdomain.crossdomain(origin=app.config.get('CORS_DOMAIN'))
-    @auth.user()
-    def index(self):
+    def _index(self):
         pass
 
-    @notif_bp.route('/', methods=['POST'])
-    @crossdomain.crossdomain(origin=app.config.get('CORS_DOMAIN'))
-    @auth.admin()
-    def create(self):
+    def _show(self, id_):
         pass
 
-    @notif_bp.route('/<string:notification_id>', methods=['DELETE'])
-    @crossdomain.crossdomain(origin=app.config.get('CORS_DOMAIN'))
-    @auth.user()
+    def post(self):
+        pass
+
     def delete(self, notification_id):
         pass
 
 
-users_bp = Blueprint('users', __name__, url_prefix='/users')
+notifications = Blueprint('notifications', __name__,
+                          url_prefix='/notifications')
+utils.register_api(
+    view=NotificationView,
+    endpoint='notifications',
+    url='/',
+    app=notifications,
+    pk='notification_id',
+    pk_type='string'
+)
 
 
-class UsersController(object):
+class UsersView(object):
 
-    @users_bp.route('/', methods=['GET'])
-    @crossdomain.crossdomain(origin=app.config.get('CORS_DOMAIN'))
-    @auth.admin()
+    decorators = [
+        utils.crossdomain(origin=app.config.get('CORS_DOMAIN')),
+        auth.user()
+    ]
+
     def index(self):
         pass
+
+users = Blueprint('users', __name__, url_prefix='/users')
+utils.register_api(
+    view=UsersView,
+    endpoint='users',
+    url='/',
+    app=users,
+    pk='user_id',
+    pk_type='string'
+)
 
 
 #@app.route('/notifications', methods=['GET'])
