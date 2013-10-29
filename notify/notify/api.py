@@ -1,11 +1,12 @@
-from app import app
-from app.crossdomain import crossdomain
-from app.models import Notification, User
-import auth
 from flask import request
 from bson import json_util
 from bson.objectid import ObjectId
 import simplejson as json
+
+from notify.notify.app.crossdomain import crossdomain
+from notify.notify.app.models import Notification, User
+import auth
+from notify.notify import app
 
 
 @app.route('/notifications', methods=['GET'])

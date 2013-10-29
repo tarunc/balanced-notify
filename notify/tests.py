@@ -3,8 +3,6 @@ import unittest
 import simplejson as json
 from jsonschema import validate
 
-from notify.app import create_app
-
 
 USER_ID = 1
 TEST_NOTIFICATION = dict(

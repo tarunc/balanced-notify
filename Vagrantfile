@@ -34,6 +34,8 @@ Vagrant.configure('2') do |config|
 
   config.berkshelf.enable = true
 
+  config.vm.synced_folder './notify/', '/home/vagrant/notify'
+
   config.vm.provider :aws do |aws, override|
     # override the vm boxes and the urls for AWS provider
     override.vm.box = 'dummy'
