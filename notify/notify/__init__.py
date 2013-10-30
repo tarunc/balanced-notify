@@ -34,7 +34,7 @@ db = MongoEngine()
 def make_app():
     import factory
 
-    application = factory.create_app(__name__, cwd, settings_override=config)
+    application = factory.create_app(app_name, cwd, settings_override=config)
     db.init_app(application)
     return application
 
