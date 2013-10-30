@@ -5,9 +5,11 @@ from flask.ext.mongoengine import MongoEngine
 
 import factory
 
-
-app = factory.create_app(__name__, os.path.abspath(os.path.dirname(__file__)))
+app = factory.create_app(__name__, [os.path.abspath(os.path.dirname(__file__))])
 db = MongoEngine(app)
+config = app.config
+
+factory.register_blueprints(app, __name__, [os.path.abspath(os.path.dirname(__file__))])
 
 
 if __name__ == '__main__':

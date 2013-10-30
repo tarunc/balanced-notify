@@ -7,10 +7,8 @@ from notify import app
 from notify.models import Notification, User
 
 
-USER_ID = 1
 TEST_NOTIFICATION = dict(
     message='Checkout this cool new feature on the Balanced dashboard',
-    uid=USER_ID
 )
 
 CREATE_SCHEMA = {
@@ -93,7 +91,7 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         for fixture in [
-            {'email': 'app@balancedpayments.com', '_id': USER_ID},
+            {'email': 'app@balancedpayments.com'},
             {'email': 'tests@balancedpayments.com'}
         ]:
             User(**fixture).save()
@@ -157,10 +155,9 @@ class TestCase(unittest.TestCase):
     def test_create_multi_notification(self):
         TEST_NOTIFICATION.pop('uid', None)
         res = self.app.post(
-            '/notification',
+            '/notifications',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
-
         data = self.validateResponse(res, CREATE_MULTI_SCHEMA)
         self.assertStatus(res, 201)
 

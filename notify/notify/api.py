@@ -1,22 +1,23 @@
 from bson import json_util
 from bson.objectid import ObjectId
 from flask import request, Blueprint
+from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
 import simplejson as json
 
-from notify import app
 from notify import utils
 from notify import auth
+from notify import config
 from notify.models import Notification, User
 
 
 class NotificationView(MethodView):
 
     decorators = [
-        utils.crossdomain(origin=app.config.get('CORS_DOMAIN')),
-        auth.user()
+        utils.crossdomain(origin=config.get('CORS_DOMAIN')),
     ]
 
+    @auth.user()
     def get(self, id_):
         if id_ is None:
             self._index()
@@ -24,16 +25,38 @@ class NotificationView(MethodView):
             self._show(id_)
 
     def _index(self):
-        pass
+        user_pk = request.headers.get('x-balanced-user')
+        user = User.objects.get(user_pk)
+        data = []
+        for notification in user.notifications:
+            data.append({
+                'message': notification.message,
+                'id': notification.id,
+            })
+        return json.dumps(data, default=json_util.default), 200
 
     def _show(self, id_):
-        pass
+        notification = Notification.objects.get(id_)
+        data = [dict(message=notification.message, id=notification.id)]
+        return json.dumps(data, default=json_util.default), 200
 
     def post(self):
-        pass
+        form_cls = model_form(Notification)
+        notification = Notification()
+        form = form_cls(request.form, csrf_enabled=False)
+        if not form.validate():
+            return json.dumps(form.errors, default=json_util.default), 400
 
+        form.populate_obj(notification)
+        notification.save()
+        data = [dict(message=notification.message, id='%s' % notification.pk)]
+        return json.dumps({'data': data}, default=json_util.default), 201
+
+    @auth.user()
     def delete(self, notification_id):
-        pass
+        notification = Notification.objects.get_or_404(pk=notification_id)
+        notification.delete()
+        return '', 204
 
 
 notifications = Blueprint('notifications', __name__,
@@ -41,28 +64,47 @@ notifications = Blueprint('notifications', __name__,
 utils.register_api(
     view=NotificationView,
     endpoint='notifications',
-    url='/',
+    url='',
     app=notifications,
     pk='notification_id',
     pk_type='string'
 )
 
 
-class UsersView(object):
+class UsersView(MethodView):
 
     decorators = [
-        utils.crossdomain(origin=app.config.get('CORS_DOMAIN')),
-        auth.user()
+        utils.crossdomain(origin=config.get('CORS_DOMAIN')),
+        auth.admin()
     ]
 
-    def index(self):
-        pass
+    def get(self, id_=None):
+        if id_ is None:
+            self._index()
+        else:
+            self._show(id_)
+
+    def _index(self):
+        data = []
+        for user in User.objects.all():
+            data.append({
+                'id': user.id,
+                'email': user.email,
+            })
+        return json.dumps({'data': data}, default=json_util.default), 200
+
+
+    def _show(self, id_):
+        user = User.objects.get(pk=id_)
+        data = [dict(id=user.id, email=user.email)]
+        return json.dumps({'data': data}, default=json_util.default), 200
+
 
 users = Blueprint('users', __name__, url_prefix='/users')
 utils.register_api(
     view=UsersView,
     endpoint='users',
-    url='/',
+    url='',
     app=users,
     pk='user_id',
     pk_type='string'
