@@ -69,3 +69,29 @@ tmtags
 [Ii]nclude
 [Ll]ib
 [Ss]cripts
+
+# Common Files
+.DS_Store
+.project
+.pydevproject
+.settings
+.coverage
+.vagrant*
+*.pyc
+rcfile.*
+!*.example
+*#*
+*~*
+nosetests.xml
+build/
+docs/_build
+*.backup*
+.idea
+*.iml
+
+# Project Files
+Gemfile*
+Berksfile.lock
+.webassets-cache
+instance
+settings.cfg

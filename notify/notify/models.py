@@ -1,12 +1,24 @@
-from app import app, db
-from bson.objectid import ObjectId
 from datetime import datetime
 
-NotificationModel = db['notifications']
-UserModel = db['users']
+from bson.objectid import ObjectId
+
+from notify import db
 
 
-class Notification(object):
+class User(db.Document):
+    email = db.StringField(required=True)
+    first_name = db.StringField(max_length=50)
+    last_name = db.StringField(max_length=50)
+
+
+class Notification(db.Document):
+
+    message = db.StringField()
+    user_id = db.ReferenceField(User)
+    created_at = db.DateTimeField()
+
+
+class _Notification(object):
 
     @staticmethod
     def create(user_id, message):
@@ -25,7 +37,7 @@ class Notification(object):
                 return dict(n=0)
 
         return (
-            NotificationModel.update(
+            Notification.update(
                 {'_id': notification_id,
                  'uid': user_id,
                  '$or': [{'read': False},
@@ -38,7 +50,7 @@ class Notification(object):
     @staticmethod
     def get_for_user(user):
         return (
-            NotificationModel.find(
+            Notification.find(
                 {'uid': user,
                  '$or': [{'read': False},
                          {'read': {'$exists': False}}]},
@@ -55,11 +67,11 @@ class Notification(object):
             notification = [Notification.create(
                 user['_id'], message) for user in users]
 
-        return NotificationModel.insert(notification)
+        return Notification.insert(notification)
 
 
-class User(object):
+class _User(object):
 
     @staticmethod
     def get_users():
-        return UserModel.find(fields=['email', '_id'])
+        return User.find(fields=['email', '_id'])

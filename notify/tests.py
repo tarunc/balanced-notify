@@ -1,17 +1,14 @@
-#!notify/bin/python
-import os
 import unittest
 
-from config import basedir
-from app import app, db
 import simplejson as json
-
 from jsonschema import validate
 
-USER_ID = 1
+from notify import app
+from notify.models import Notification, User
+
+
 TEST_NOTIFICATION = dict(
     message='Checkout this cool new feature on the Balanced dashboard',
-    uid=USER_ID
 )
 
 CREATE_SCHEMA = {
@@ -93,16 +90,15 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
-        db['notifications'].remove()
-        db['users'].remove()
-        db['users'].insert(
-            [{'email': 'app@balancedpayments.com',
-              '_id': USER_ID},
-             {'email': 'tests@balancedpayments.com'}])
+        for fixture in [
+            {'email': 'app@balancedpayments.com'},
+            {'email': 'tests@balancedpayments.com'}
+        ]:
+            User(**fixture).save()
 
     def tearDown(self):
-        db['notifications'].remove()
-        db['users'].remove()
+        Notification.objects.delete()
+        User.objects.delete()
 
     def assertStatus(self, response, status_code):
         """
@@ -115,7 +111,8 @@ class TestCase(unittest.TestCase):
 
     def validateResponse(self, response, json_schema):
         """
-        Helper method to parse a response as json and validate it given a json_schema
+        Helper method to parse a response as json and validate it given a
+        json_schema
 
         :param response: Flask response
         :param json_schema: a json schema
@@ -158,10 +155,9 @@ class TestCase(unittest.TestCase):
     def test_create_multi_notification(self):
         TEST_NOTIFICATION.pop('uid', None)
         res = self.app.post(
-            '/notification',
+            '/notifications',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
-
         data = self.validateResponse(res, CREATE_MULTI_SCHEMA)
         self.assertStatus(res, 201)
 

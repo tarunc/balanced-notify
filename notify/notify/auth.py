@@ -1,5 +1,6 @@
-from flask import request
 from functools import update_wrapper
+
+from flask import request
 
 
 def user():

@@ -25,3 +25,9 @@ if os.environ.get('CORS_DOMAIN') is None:
     CORS_DOMAIN = '*'
 else:
     CORS_DOMAIN = os.environ.get('CORS_DOMAIN')
+
+
+MONGODB_SETTINGS = {
+    'DB': 'notify',
+    'host': 'localhost'
+}

@@ -1,6 +1,7 @@
 from datetime import timedelta
-from flask import make_response, request, current_app
 from functools import update_wrapper
+
+from flask import make_response, request, current_app
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -50,3 +51,16 @@ def crossdomain(origin=None, methods=None, headers=None,
         f.required_methods = ['OPTIONS']
         return update_wrapper(wrapped_function, f)
     return decorator
+
+
+def register_api(view, endpoint, url, app=None, pk='id', pk_type='int'):
+    app = app or current_app
+    view_func = view.as_view(endpoint)
+    app.add_url_rule(url, defaults={pk: None}, view_func=view_func,
+                     methods=['GET', ])
+    app.add_url_rule(url, view_func=view_func, methods=['POST', ])
+    if not url:
+        url = '/'
+    _url = '{url}<{pk_type}:{pk}>'.format(url=url, pk_type=pk_type, pk=pk)
+    app.add_url_rule(_url, view_func=view_func,
+                     methods=['GET', 'PUT', 'DELETE'])
