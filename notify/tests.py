@@ -3,7 +3,7 @@ import unittest
 import simplejson as json
 from jsonschema import validate
 
-from notify import app
+import notify
 from notify.models import Notification, User
 
 
@@ -89,6 +89,7 @@ GET_USERS_SCHEMA = {
 class TestCase(unittest.TestCase):
 
     def setUp(self):
+        app = notify.make_app()
         self.app = app.test_client()
         for fixture in [
             {'email': 'app@balancedpayments.com'},
@@ -124,9 +125,8 @@ class TestCase(unittest.TestCase):
         return data
 
     def test_create_notification(self):
-        TEST_NOTIFICATION['uid'] = USER_ID
         res = self.app.post(
-            '/notification',
+            '/notifications',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
 
@@ -136,17 +136,15 @@ class TestCase(unittest.TestCase):
         return data['data']
 
     def test_create_notification_unauthorized(self):
-        TEST_NOTIFICATION['uid'] = USER_ID
         res = self.app.post(
-            '/notification',
+            '/notifications',
             data=TEST_NOTIFICATION)
 
         self.assertStatus(res, 401)
 
     def test_create_notification_not_admin_authorized(self):
-        TEST_NOTIFICATION['uid'] = USER_ID
         res = self.app.post(
-            '/notification',
+            '/notifications',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-user': USER_ID})
 
@@ -158,7 +156,7 @@ class TestCase(unittest.TestCase):
             '/notifications',
             data=TEST_NOTIFICATION,
             headers={'x-balanced-admin': '1'})
-        data = self.validateResponse(res, CREATE_MULTI_SCHEMA)
+        data = self.validateResponse(res, GET_NOTIFICATIONS_SCHEMA)
         self.assertStatus(res, 201)
 
         return data['data']
@@ -187,7 +185,7 @@ class TestCase(unittest.TestCase):
     def test_delete_notifications(self):
         notification_id = self.test_create_notification()
         res = self.app.delete(
-            '/notification/' + notification_id,
+            '/notifications/' + notification_id,
             headers={'x-balanced-user': USER_ID})
 
         self.assertStatus(res, 204)
@@ -197,7 +195,7 @@ class TestCase(unittest.TestCase):
         notification_id = self.test_create_notification()
         for expected_status_code in (204, 403):
             resp = self.app.delete(
-                '/notification/' + notification_id,
+                '/notifications/' + notification_id,
                 headers={'x-balanced-user': USER_ID})
 
             self.assertStatus(resp, expected_status_code)
@@ -205,21 +203,21 @@ class TestCase(unittest.TestCase):
     def test_delete_notifications_unauthorized(self):
         notification_id = self.test_create_notification()
         res = self.app.delete(
-            '/notification/' + notification_id)
+            '/notifications/' + notification_id)
 
         self.assertStatus(res, 401)
 
     def test_delete_notifications_another_user(self):
         notification_id = self.test_create_notification()
         res = self.app.delete(
-            '/notification/' + notification_id,
+            '/notifications/' + notification_id,
             headers={'x-balanced-user': '5'})
 
         self.assertStatus(res, 403)
 
     def test_delete_notifications_random_id(self):
         res = self.app.delete(
-            '/notification/1dnnn',
+            '/notifications/1dnnn',
             headers={'x-balanced-user': '5'})
 
         self.assertStatus(res, 403)

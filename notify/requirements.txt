@@ -1,5 +1,5 @@
-Flask>=0.10
-simplejson>=3.3
-jsonschema>=2.2.0
+Flask==0.10
+simplejson==3.3
+jsonschema==2.2.0
 flask-mongoengine==0.7.0
 wtforms==1.0.5
