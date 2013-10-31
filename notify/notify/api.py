@@ -1,5 +1,4 @@
 from bson import json_util
-from bson.objectid import ObjectId
 from flask import request, Blueprint
 from flask.ext.mongoengine.wtf import model_form
 from flask.views import MethodView
